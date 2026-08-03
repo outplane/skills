@@ -1,6 +1,6 @@
 {
   "name": "outplane",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Deploy and operate applications on Out Plane from a coding agent: applications, deployments, environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics.",
   "author": {
     "name": "Out Plane"
@@ -8,5 +8,12 @@
   "homepage": "https://docs.outplane.com/cli/agents",
   "repository": "https://github.com/outplane/skills",
   "license": "Apache-2.0",
-  "keywords": ["outplane", "deployment", "paas", "cli", "postgres", "devops"]
+  "keywords": [
+    "outplane",
+    "deployment",
+    "paas",
+    "cli",
+    "postgres",
+    "devops"
+  ]
 }

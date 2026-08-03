@@ -9,7 +9,17 @@ so there is nothing to remember and nothing to type.
 
 ## Install
 
-**As a Claude Code plugin** (recommended):
+**With the Out Plane CLI** (needs CLI v0.2.1 or later):
+
+```bash
+outplane skills install
+```
+
+Detects every coding tool on the machine and installs into each. `--agent` picks one,
+`--project` writes into the current repository instead of your home directory so the
+team shares one copy.
+
+**As a Claude Code plugin:**
 
 ```text
 /plugin marketplace add outplane/skills
@@ -32,10 +42,6 @@ npx skills add outplane/skills
 | OpenCode | `~/.config/opencode/skills/` |
 
 Restart the agent afterwards so it picks the skill up.
-
-A first-class `outplane skills install` is planned for the CLI, so that the skill and the
-CLI on a machine are always the same age. It does not exist yet; use one of the channels
-above.
 
 ## What it needs
 
@@ -86,28 +92,22 @@ skills/use-outplane/
 conversation for the rest of the session, so the body is routing and the depth waits in
 `references/` until a task actually needs it.
 
-**The tables are generated.** Command lists, error codes, exit codes and global flags all
-come from `outplane schema`, which the CLI produces from the same declarations it runs
-on. Documentation that restates a flag by hand is documentation that goes wrong the first
-time the flag changes and stays wrong until somebody notices.
+**Nothing here restates the CLI.** Command lists, flags, allowed values and per-command
+error codes are not copied into these files, because a copy is wrong the first time the
+CLI changes and stays wrong until somebody notices. The skill sends the agent to
+`outplane schema`, which is local, needs no credential and is generated from what the
+binary actually runs. Only the exit-code contract is written out, because it is
+append-only by design and an agent branching on it should not need a tool call.
 
 ```bash
-node scripts/gen-refs.mjs          # fill the generated blocks
-node scripts/gen-refs.mjs --check  # fail if they have drifted
 node scripts/validate.mjs          # check the rules a skill has to follow
-```
-
-To refresh the snapshot after a CLI release:
-
-```bash
-(cd ../cli && go run -ldflags "-X main.version=$(git describe --tags --abbrev=0 | sed 's/^v//')" ./cmd/outplane schema) > cli-schema.json
-node scripts/gen-refs.mjs
 ```
 
 ## Contributing
 
-Read the skill before changing it: the parts outside the `<!-- gen:… -->` blocks are the
-recipes, which is the only thing a reference is for. Flag lists belong in the schema.
+Read the skill before changing it. A reference exists for the recipes: which commands
+compose into a task, in what order, and what to check between the steps. Flag lists,
+allowed values and limits belong in `outplane schema` and in the documentation, not here.
 
 Two rules that are not negotiable:
 
@@ -115,8 +115,7 @@ Two rules that are not negotiable:
    Claude Code compares that version to decide whether an installed copy is stale.
    Without a bump, nobody receives the change. Keep `metadata.version` in `SKILL.md` in
    step with it; `scripts/validate.mjs` checks that they agree.
-2. **`node scripts/validate.mjs` and `node scripts/gen-refs.mjs --check` must pass.**
-   Both run in CI.
+2. **`node scripts/validate.mjs` must pass.** It runs in CI.
 
 ## License
 

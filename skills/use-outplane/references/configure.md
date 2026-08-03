@@ -2,32 +2,16 @@
 
 What an application reads from its environment, and what it serves on.
 
-Flag detail and allowed values: `outplane schema env`, `outplane schema port`.
-Behaviour and limits: `https://docs.outplane.com/docs/cli/env.md` and
-`https://docs.outplane.com/docs/cli/port.md`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index env port -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `env list [flags]` | list an application's environment variables | read, repeatable |
-| `env get <KEY> [flags]` | print one environment variable | read, repeatable |
-| `env set <ASSIGNMENT...> [flags]` | set environment variables | write, repeatable, --dry-run |
-| `env unset <KEY...> [flags]` | remove environment variables | write, --dry-run |
-| `env pull [FILE] [flags]` | write an application's environment variables to a file | read, repeatable, --dry-run |
-| `env push [FILE] [flags]` | set an application's environment variables from a file | write, repeatable, --dry-run |
-| `env run <COMMAND...> [flags]` | run a local command with an application's environment variables | write, --dry-run, long-running |
-| `env group list` | list the team's shared variable groups | read, repeatable |
-| `env group get <GROUP> [flags]` | show what a group holds | read, repeatable |
-| `env group create <NAME> [flags]` | create a shared variable group | write, --dry-run |
-| `env group set <GROUP> [flags]` | change a group's variables or settings | write, repeatable, --dry-run |
-| `env group assign <GROUP> [flags]` | give an application a group's variables | write, repeatable, --dry-run |
-| `env group unassign <GROUP> [flags]` | stop an application using a group | write, repeatable, --dry-run |
-| `env group delete <GROUP> [flags]` | permanently delete a variable group | destructive, --dry-run |
-| `port list [flags]` | list the ports an application serves | read, repeatable |
-| `port get <PORT> [flags]` | print one port's address | read, repeatable |
-| `port set <PORT...> [flags]` | open a port, or change one that is already open | write, repeatable, --dry-run |
-| `port unset <PORT...> [flags]` | stop an application serving a port | write, repeatable, --dry-run |
-<!-- /gen -->
+- `outplane schema env` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/env.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Saving is not deploying
 
@@ -160,5 +144,3 @@ Three things worth knowing:
 `portId` from `port list` is what a custom domain attaches to; the port number is not
 enough. Closing a port leaves any custom domain on it pointing at nothing, so read
 `domain list` afterwards.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

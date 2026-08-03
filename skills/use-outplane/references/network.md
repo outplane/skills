@@ -2,27 +2,16 @@
 
 Giving an application an address, and restricting who can reach it.
 
-Flag detail: `outplane schema domain`, `outplane schema ip-profile`.
-Behaviour: `https://docs.outplane.com/docs/cli/domain.md` and
-`https://docs.outplane.com/docs/cli/ip-profile.md`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index domain ip-profile -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `domain list [flags]` | list the team's custom domains | read, repeatable |
-| `domain dns <HOST>` | show the DNS record a host needs | read, repeatable, no credential |
-| `domain add <HOST> [flags]` | register a custom domain | write, --dry-run |
-| `domain point <HOST> [flags]` | send a domain to an application | write, repeatable, --dry-run |
-| `domain unpoint <HOST> [flags]` | stop a domain going anywhere, keeping it registered | write, repeatable, --dry-run |
-| `domain remove <HOST> [flags]` | give up a custom domain | destructive, --dry-run |
-| `ip-profile list` | list the team's IP access profiles | read, repeatable |
-| `ip-profile get <PROFILE>` | show one profile, its rules and what uses it | read, repeatable |
-| `ip-profile create <NAME> [flags]` | create an IP access profile | write, --dry-run |
-| `ip-profile set <PROFILE> [flags]` | change a profile's rules, name or description | write, repeatable, --dry-run |
-| `ip-profile delete <PROFILE> [flags]` | permanently delete an IP access profile | destructive, repeatable, --dry-run |
-| `ip-profile assign <PROFILE> [flags]` | restrict an application to a profile's networks | write, repeatable, --dry-run |
-| `ip-profile unassign <PROFILE> [flags]` | stop an application using a profile | write, repeatable, --dry-run |
-<!-- /gen -->
+- `outplane schema domain` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/domain.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Both take effect immediately
 
@@ -104,5 +93,3 @@ Work down this list, cheapest first:
    nowhere; a closed port leaves exactly that behind.
 4. `outplane app get --json --fields status,url` — a paused application answers nothing.
 5. Only then look at logs and requests. See `operate.md`.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

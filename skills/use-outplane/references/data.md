@@ -2,31 +2,16 @@
 
 Managed PostgreSQL, and storage that survives a deployment.
 
-Flag detail: `outplane schema db`, `outplane schema volume`. Behaviour, regions,
-versions and limits: `https://docs.outplane.com/docs/cli/db.md` and
-`https://docs.outplane.com/docs/cli/volume.md`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index db volume -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `db list` | list the team's managed databases | read, repeatable |
-| `db get <DATABASE>` | show one database and what is inside it | read, repeatable |
-| `db url <DATABASE> [flags]` | print a connection string | read, repeatable |
-| `db create <NAME> [flags]` | provision a managed PostgreSQL database | write, --dry-run |
-| `db delete <DATABASE> [flags]` | permanently destroy a database | destructive, --dry-run |
-| `db role list <DATABASE>` | list the logins a database accepts | read, repeatable |
-| `db role create <DATABASE> <ROLE>` | add a login to a database | write, --dry-run |
-| `db role delete <DATABASE> <ROLE> [flags]` | remove a login | destructive, --dry-run |
-| `db database list <DATABASE>` | list the databases inside a managed instance | read, repeatable |
-| `db database create <DATABASE> <NAME> [flags]` | add a database inside a managed instance | write, --dry-run |
-| `db database delete <DATABASE> <NAME> [flags]` | destroy a database inside an instance | destructive, --dry-run |
-| `volume list [flags]` | list the team's disks | read, repeatable |
-| `volume get <VOLUME>` | show one disk | read, repeatable |
-| `volume create <NAME> [flags]` | create a disk, and optionally mount it | write, --dry-run |
-| `volume attach <VOLUME> [flags]` | mount a disk on an application | write, repeatable, --dry-run |
-| `volume detach <VOLUME> [flags]` | unmount a disk, keeping it and its contents | write, repeatable, --dry-run |
-| `volume delete <VOLUME> [flags]` | permanently destroy a disk and its contents | destructive, --dry-run |
-<!-- /gen -->
+- `outplane schema db` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/db.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Only PostgreSQL is managed
 
@@ -118,5 +103,3 @@ Four constraints that produce most of the errors here:
   destroyed, and `volume delete` refuses while it is attached.
 
 Names are not unique. Every command also accepts an id, and the id is what to store.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

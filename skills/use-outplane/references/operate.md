@@ -2,25 +2,16 @@
 
 What it is doing, why it broke, and how much of it there is.
 
-Flag detail: `outplane schema logs`, `outplane schema requests`, `outplane schema metrics`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index logs requests metrics app shell app instances app scale app pause app resume -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `app list [flags]` | list the applications in a team | read, repeatable |
-| `app get [APP]` | show one application in detail | read, repeatable |
-| `app create <NAME> [flags]` | create an application and deploy it | write, --dry-run |
-| `app scale [APP] [flags]` | change how many instances an application runs, and how large they are | write, repeatable, --dry-run |
-| `app pause [APP]` | stop an application without deleting it | write, repeatable, --dry-run |
-| `app resume [APP]` | start a paused application | write, repeatable, --dry-run |
-| `app instances [APP]` | list the instances an application is actually running | read, repeatable |
-| `app delete <APP> [flags]` | permanently delete an application | destructive, --dry-run |
-| `app rename <DISPLAY-NAME> [flags]` | change the label an application is shown under | write, repeatable, --dry-run |
-| `logs [APP] [flags]` | show what an application printed | read, repeatable, long-running |
-| `metrics [APP]` | show what applications are using right now | read, repeatable |
-| `requests [APP] [flags]` | show the HTTP requests an application received | read, repeatable, long-running, streams ndjson |
-| `app shell [APP] [flags]` | open an interactive shell on a running instance | write, --dry-run, long-running |
-<!-- /gen -->
+- `outplane schema logs` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/logs.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Diagnosing, in order
 
@@ -139,5 +130,3 @@ Three things make this different from every other command:
   do not reach the other instances, and the next deployment replaces the lot.
 
 Instance names change on every restart, so one read a minute ago may already be gone.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

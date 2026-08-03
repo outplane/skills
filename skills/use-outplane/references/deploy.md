@@ -2,19 +2,16 @@
 
 Shipping code, watching a build, and changing how the image is made.
 
-Full behaviour, limits and flag detail: `outplane schema deploy`, `outplane schema build`,
-and `https://docs.outplane.com/docs/cli/deploy.md`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index deploy build -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `build get [flags]` | show how an application is built | read, repeatable |
-| `build set [flags]` | change how an application is built | write, repeatable, --dry-run |
-| `deploy create [APP] [flags]` | build and deploy an application | write, --dry-run, long-running, streams ndjson |
-| `deploy list [APP] [flags]` | list recent deployments | read, repeatable |
-| `deploy get <DEPLOYMENT> [APP]` | show one deployment | read, repeatable |
-| `deploy logs <DEPLOYMENT> [flags]` | show the build output of one deployment | read, repeatable, long-running |
-<!-- /gen -->
+- `outplane schema deploy` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/deploy.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Ship the current application
 
@@ -119,5 +116,3 @@ would ignore it silently.
   with `deploy create`; that is a second deployment for nothing.
 - **Build change then ship**: `build set --deploy`.
 - **Verify afterwards**: `outplane app get --json --fields status,url`.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

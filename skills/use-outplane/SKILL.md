@@ -11,7 +11,7 @@ description: >
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.1.0"
+  version: "0.2.0"
   category: deployment
 ---
 
@@ -39,8 +39,16 @@ truth: it is generated from the same declarations the binary runs on, needs no
 credential, makes no network request, and is deterministic. Every page of documentation
 is served as plain Markdown by appending `.md` to its address.
 
-**If this file and one of those sources disagree, the source wins.** This file is
-routing and sequence, nothing else.
+Three rules follow, and they matter more than anything else in this file:
+
+1. **If this file and one of those sources disagree, the source wins.** This file is
+   routing and sequence, nothing else.
+2. **If this file does not cover it, look it up rather than guessing.** A command, flag
+   or behaviour that is not described here is not a command that does not exist. Read
+   `outplane schema`, or fetch the documentation page. Never invent a flag, and never
+   tell the user something is impossible without having checked.
+3. **If something does not behave the way this file says, believe the CLI.** It is newer
+   than this text. Say what actually happened.
 
 ## Resource model
 

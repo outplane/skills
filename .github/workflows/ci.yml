@@ -26,31 +26,6 @@ jobs:
       - name: Validate the skill
         run: node scripts/validate.mjs
 
-      # The generated tables against the committed schema snapshot.
-      - name: Check the generated blocks
-        run: node scripts/gen-refs.mjs --check
-
-      # The snapshot is the one thing here that can quietly fall behind: a CLI release
-      # adds a command, nobody refreshes it, and the index describes a version that no
-      # longer exists. `outplane schema` is deterministic per release, so comparing the
-      # version it was generated from against the newest tag is enough to catch it, and
-      # needs no binary and no credential.
-      - name: The schema snapshot is current
-        run: |
-          set -eu
-          have=$(node -p "require('./cli-schema.json').version")
-          want=$(curl -fsSL https://api.github.com/repos/outplane/cli/releases/latest \
-            | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).tag_name.replace(/^v/,'')")
-          echo "snapshot: $have   newest release: $want"
-          if [ "$have" != "$want" ]; then
-            echo ""
-            echo "::error::cli-schema.json was generated from $have, but $want is released."
-            echo "Refresh it, then rerun the generator:"
-            echo "  (cd ../cli && go run -ldflags \"-X main.version=$want\" ./cmd/outplane schema) > cli-schema.json"
-            echo "  node scripts/gen-refs.mjs"
-            exit 1
-          fi
-
       # A skill folder is copied verbatim into a user's home directory. Anything that
       # cannot be read there is a file that should not have been committed.
       - name: No stray files in the skill

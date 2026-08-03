@@ -1,23 +1,17 @@
 # Signing in, teams, and this directory
 
 Which credential answers, which team it acts on, and which application a command means
-when none is named.
 
-<!-- gen:index login logout whoami link unlink team status repos update api -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `login [flags]` | sign in to a team | write, repeatable, no credential |
-| `logout [flags]` | remove a stored credential | write, repeatable, no credential |
-| `whoami` | show the active credential | read, repeatable |
-| `link [APP]` | point this directory at a team, and optionally an application | write, repeatable |
-| `unlink` | remove this directory's link | write, repeatable, no credential |
-| `api <METHOD> <PATH> [flags]` | call an API endpoint the CLI has no command for | destructive, --dry-run |
-| `repos [flags]` | list the repositories you can deploy from | read, repeatable |
-| `status` | show which team and credential the next command will use | read, repeatable, no credential |
-| `team list` | list the teams this machine is signed in to | read, repeatable, no credential |
-| `team use <TEAM>` | choose the team commands act on by default | write, repeatable, no credential |
-| `update [flags]` | install the newest version of this CLI | write, repeatable, no credential |
-<!-- /gen -->
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
+
+- `outplane schema login` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/login.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Signing in
 
@@ -137,5 +131,3 @@ failures, reports what changed, and can be rehearsed with `--dry-run`. Check fir
 ```bash
 outplane schema | jq -r '.commands[].name'
 ```
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._

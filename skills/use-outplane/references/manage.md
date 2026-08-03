@@ -1,28 +1,17 @@
 # Creating and managing applications
 
 Making an application, looking at it, renaming it, removing it, and the credentials it
-needs to pull a private image.
 
-Flag detail and every allowed value: `outplane schema app create`.
-Behaviour: `https://docs.outplane.com/docs/cli/app.md`.
+**Do not answer a flag, a limit or an allowed value from memory.** Read it:
 
-<!-- gen:index app list app get app create app delete app rename registry -->
-| Command | What it does | Traits |
-| --- | --- | --- |
-| `app list [flags]` | list the applications in a team | read, repeatable |
-| `app get [APP]` | show one application in detail | read, repeatable |
-| `app create <NAME> [flags]` | create an application and deploy it | write, --dry-run |
-| `app scale [APP] [flags]` | change how many instances an application runs, and how large they are | write, repeatable, --dry-run |
-| `app pause [APP]` | stop an application without deleting it | write, repeatable, --dry-run |
-| `app resume [APP]` | start a paused application | write, repeatable, --dry-run |
-| `app instances [APP]` | list the instances an application is actually running | read, repeatable |
-| `app delete <APP> [flags]` | permanently delete an application | destructive, --dry-run |
-| `app rename <DISPLAY-NAME> [flags]` | change the label an application is shown under | write, repeatable, --dry-run |
-| `registry list` | list the team's private registry credentials | read, repeatable |
-| `registry create <NAME> [flags]` | store a login for a private registry | write, --dry-run |
-| `registry delete <CREDENTIAL> [flags]` | remove a private registry credential | destructive, repeatable, --dry-run |
-| `app shell [APP] [flags]` | open an interactive shell on a running instance | write, --dry-run, long-running |
-<!-- /gen -->
+- `outplane schema app` lists every command in this group with its flags, types,
+  allowed values, output fields and error codes. Local, no credential, generated from
+  what the binary runs.
+- `https://docs.outplane.com/docs/cli/app.md` has the product behaviour and the limits.
+  Every documentation page is served as plain Markdown by appending `.md`, and
+  `https://docs.outplane.com/llms.txt` says which page covers what.
+
+When this file disagrees with either of them, they win.
 
 ## Creating
 
@@ -120,5 +109,3 @@ deleting one breaks nothing until the next pull.
 
 No password is ever returned, by this or any other command. A credential is replaced,
 not inspected.
-
-_Generated from `outplane schema` at CLI 0.1.1. Run `node scripts/gen-refs.mjs` after refreshing `cli-schema.json`._
