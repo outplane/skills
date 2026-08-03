@@ -1,0 +1,43 @@
+# The skill is instructions an agent follows, so the checks are about the things that
+# fail quietly: a rule the specification enforces by ignoring the skill, and a table
+# that drifted away from the CLI it describes.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Name, description, size, and every reference reachable from SKILL.md.
+      - name: Validate the skill
+        run: node scripts/validate.mjs
+
+      # The generated tables against the committed schema snapshot.
+      - name: Check the generated blocks
+        run: node scripts/gen-refs.mjs --check
+
+      # A skill folder is copied verbatim into a user's home directory. Anything that
+      # cannot be read there is a file that should not have been committed.
+      - name: No stray files in the skill
+        run: |
+          set -eu
+          found=$(find skills -type f ! -name '*.md' | head -20)
+          if [ -n "$found" ]; then
+            echo "Only Markdown belongs under skills/:"
+            echo "$found"
+            exit 1
+          fi

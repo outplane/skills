@@ -1,0 +1,19 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "outplane",
+  "description": "Out Plane agent skills: deploy and operate applications, databases, domains and disks from a coding agent.",
+  "owner": {
+    "name": "Out Plane",
+    "url": "https://outplane.com"
+  },
+  "plugins": [
+    {
+      "name": "outplane",
+      "source": "./",
+      "description": "Deploy and operate applications on Out Plane from a coding agent.",
+      "category": "deployment",
+      "homepage": "https://docs.outplane.com/cli/agents",
+      "license": "Apache-2.0"
+    }
+  ]
+}
