@@ -9,14 +9,7 @@ so there is nothing to remember and nothing to type.
 
 ## Install
 
-**With the Out Plane CLI** (recommended, and the only channel that knows which CLI
-version you have):
-
-```bash
-outplane skills install
-```
-
-**As a Claude Code plugin:**
+**As a Claude Code plugin** (recommended):
 
 ```text
 /plugin marketplace add outplane/skills
@@ -39,6 +32,10 @@ npx skills add outplane/skills
 | OpenCode | `~/.config/opencode/skills/` |
 
 Restart the agent afterwards so it picks the skill up.
+
+A first-class `outplane skills install` is planned for the CLI, so that the skill and the
+CLI on a machine are always the same age. It does not exist yet; use one of the channels
+above.
 
 ## What it needs
 
