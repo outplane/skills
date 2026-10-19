@@ -11,7 +11,7 @@ description: >
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.2.0"
+  version: "0.2.1"
   category: deployment
 ---
 
@@ -112,16 +112,18 @@ you want a command that fails on a missing credential.
 Skip it when the intent is to deploy or to sign in. `outplane login` opens the console
 and waits for approval; `deploy create` reports a missing credential itself.
 
-If the CLI is not installed:
+If the CLI is not installed, **say so and hand the user the command. Do not install it
+yourself**: putting software on their machine is their decision, like a destructive
+command is.
 
 ```bash
 curl -fsSL https://outplane.com/install.sh | sh   # macOS, Linux
 npm i -g outplane                                  # Windows, or wherever Node is present
-outplane update                                    # replace it with the newest release
 ```
 
 The installer verifies the download against the release's checksums and never asks for a
-password. Source and releases: `https://github.com/outplane/cli`.
+password. Once it is installed, `outplane update` replaces it with the newest release.
+Source and releases: `https://github.com/outplane/cli`.
 
 ## Destructive commands stop on their own
 
