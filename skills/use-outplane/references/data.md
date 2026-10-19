@@ -40,13 +40,13 @@ not help.
 ## Getting a connection string
 
 ```bash
-DATABASE_URL=$(outplane db url orders)
-outplane env set DATABASE_URL="$DATABASE_URL" --app checkout --deploy
+outplane env set DATABASE_URL="$(outplane db url orders)" --app checkout --deploy
 ```
 
-`db url` prints a bare string in every format, so command substitution works. It is the
-only command that returns a password, and asking for it is the request to see it: it is
-not masked and it appears nowhere else.
+`db url` prints a bare string in every format, so command substitution hands it straight
+to `env set` and it never sits in a shell variable. It is the only command that returns a
+password, and asking for it is the request to see it: it is not masked and it appears
+nowhere else.
 
 While the instance holds exactly one role and one database, neither has to be named.
 With a choice, the command refuses and lists them rather than picking one.
