@@ -70,9 +70,10 @@ attached profiles, and detaching the last one opens it again.
 
 Three traps:
 
-- **A profile with no rules allows nothing.** Attached to an application, it makes that
-  application reachable from nowhere. The request is not refused and the result reports
-  zero rules. This is almost never what was intended.
+- **A profile with no rules restricts nothing.** If it is the only profile attached, the
+  application stays reachable from anywhere, exactly as with no profile; next to other
+  profiles it adds no address. The request is not refused and the result reports zero
+  rules. Attaching an empty profile does not lock an application down.
 - **`ip-profile set --rule` replaces the entire list.** Sending one rule to a profile
   that had four leaves it with one. Read the profile first and send every rule it should
   end up with.
