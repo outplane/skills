@@ -1,13 +1,21 @@
 {
   "name": "outplane",
-  "version": "0.2.0",
+  "displayName": "Out Plane",
+  "version": "0.2.1",
   "description": "Deploy and operate applications on Out Plane from a coding agent: applications, deployments, environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics.",
   "author": {
-    "name": "Out Plane"
+    "name": "Out Plane",
+    "email": "hello@outplane.com",
+    "url": "https://outplane.com"
   },
   "homepage": "https://docs.outplane.com/cli/agents",
   "repository": "https://github.com/outplane/skills",
   "license": "Apache-2.0",
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://docs.outplane.com/cli/agents",
+  "supportUrl": "https://github.com/outplane/skills/issues",
+  "privacyPolicyUrl": "https://outplane.com/privacy",
+  "termsOfServiceUrl": "https://outplane.com/terms",
   "keywords": [
     "outplane",
     "deployment",

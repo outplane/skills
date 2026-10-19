@@ -59,6 +59,20 @@ In a pipeline, set `OUTPLANE_TOKEN` instead of signing in.
 CLI source and releases: [github.com/outplane/cli](https://github.com/outplane/cli).
 Documentation: [docs.outplane.com/cli](https://docs.outplane.com/cli).
 
+## What it runs
+
+The plugin is instructions and nothing else: no hooks, no MCP servers, no scripts, no
+binaries. The skill lets the agent run the `outplane` CLI, plus `which` and `command -v`
+to find it, and read pages from docs.outplane.com when a task needs them.
+
+It never reads, stores or sends a credential. `outplane login` stores the user's
+credential and the CLI sends it to the Out Plane API, the same as when a person types
+the command. In a pipeline the credential comes from the runner's own secret store as
+`OUTPLANE_TOKEN`, which the CI example shows; the plugin does not run there.
+
+The agent does not install the CLI and does not run a destructive command. Both are
+handed to the user to run.
+
 ## Try it
 
 Once it is installed, ask your agent things like:
