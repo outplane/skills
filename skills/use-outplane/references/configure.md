@@ -53,6 +53,9 @@ removes nothing, including the names that were valid.
 Reserved keys are refused before any request. `PORT` is **not** reserved and may be set.
 The current list is in `outplane schema env set` and on the documentation page.
 
+`--hangar <name>` in place of `--app` does the same for a Hangar, and `--restart` stands
+in for `--deploy` there; see `hangars.md`.
+
 ## One value, into a variable
 
 ```bash
@@ -117,10 +120,10 @@ nothing detects it.
 A group that is assigned to something cannot be deleted. `env group get --apps` lists
 what still uses it.
 
-`--apps` lists Hangars too, with `kind` set to `hangar`. A Hangar never deploys: it keeps
-the values it had when it was created, and neither `deploy create` nor
-`env group unassign` reaches one. A group a Hangar still uses is unlinked on the group's
-page in the console (Unlink), which is the user's step; see `hangars.md`.
+`--apps` lists Hangars too, with `kind` set to `hangar`. A Hangar never deploys: a change
+to the group reaches it the next time it starts, and `deploy create` never reaches one.
+`env group unassign <group> --hangar <name>` unlinks a group from a Hangar; see
+`hangars.md`.
 
 ## Ports
 

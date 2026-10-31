@@ -12,7 +12,7 @@ description: >
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.4.0"
+  version: "0.5.0"
   category: deployment
 ---
 
@@ -88,6 +88,11 @@ Somewhere for coding agents to work, rather than something to serve?
 ├─ Open a dev server's port        → outplane hangar port set <name> <port>[:http:public]   (no restart)
 ├─ Is it busy or full              → outplane hangar metrics <name>   (memory at its limit freezes it)
 ├─ Frozen, or on an old image      → outplane hangar restart <name>   (ends its session and agents; ask first)
+├─ Stop it, keep its files         → outplane hangar pause <name>   (ends its session and agents; ask first)
+├─ Paused, by hand or when idle    → outplane hangar resume <name>
+├─ Change its idle timeout         → outplane hangar update <name> --idle-timeout <duration|never>
+├─ Change its variables            → outplane env set KEY=VALUE --hangar <name>   (applies at its next start)
+├─ Link or unlink a variable group → outplane env group assign|unassign <group> --hangar <name>   (next start)
 └─ Remove it                       → outplane hangar delete <name>   (stops with exit 4)
 ```
 
@@ -205,7 +210,7 @@ Load one reference. Two at most.
 | Use a database or a persistent disk | `references/data.md` | `db`, `volume` |
 | Find out what it is doing, or why it broke | `references/operate.md` | `logs`, `requests`, `metrics`, `app shell`, `app instances`, `app scale`, `app pause`, `app resume` |
 | Create, inspect, rename or delete an application | `references/manage.md` | `app`, `registry` |
-| Give coding agents a machine of their own, get into one, open its ports, or see what it uses | `references/hangars.md` | `hangar`, `hangar port`, `hangar metrics` |
+| Give coding agents a machine of their own, get into one, open its ports, change its variables, see what it uses, or pause it | `references/hangars.md` | `hangar`, `hangar port`, `env --hangar`, `hangar metrics`, `hangar pause` |
 | Sign in, switch team, link a directory | `references/session.md` | `login`, `link`, `team`, `status`, `whoami`, `repos`, `update`, `api` |
 | Understand a failure | `references/errors.md` | exit codes, the error object, every error code |
 | Run this in a pipeline | `references/ci.md` | no terminal, no keychain, `OUTPLANE_TOKEN` |
@@ -235,6 +240,8 @@ outplane schema | jq -r '.commands[] | select(.risk == "read") | .name'
   an agent harness they exit `2` and open nothing. Hand the user the command instead.
 - Hangars are not applications. `app list` leaves them out, yet a name a Hangar holds
   is taken for applications too, and the other way round.
+- A Hangar pauses on its own once its terminal has been quiet for its idle timeout, 30
+  minutes unless chosen. A paused one refuses `hangar connect` until `hangar resume`.
 
 ## Answering
 

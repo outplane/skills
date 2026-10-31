@@ -15,8 +15,9 @@ When this file disagrees with either of them, they win.
 
 If `outplane schema hangar` exits `2` because it does not know the command, the
 installed CLI is older than Hangars. `outplane update` is the fix. The same goes for
-`outplane schema hangar port`, `outplane schema hangar metrics` and
-`outplane schema hangar restart`, which arrived later than the rest.
+`port`, `metrics`, `restart`, `pause`, `resume` and `update` under
+`outplane schema hangar`, which arrived later than the rest, and for an `env` command
+that does not know `--hangar`.
 
 ## A Hangar or an application
 
@@ -34,8 +35,8 @@ What a Hangar is:
 
 - The coding agents chosen when it was created, already installed, each in a window of
   its own.
-- A disk that keeps what is written to its home directory across restarts. Not across
-  a deletion.
+- A disk that keeps what is written to its home directory across restarts and pauses.
+  Not across a deletion.
 - One terminal session that keeps running between connections. Everyone who joins it
   sees the same screen and types into the same programs.
 - It belongs to the team, not to whoever created it.
@@ -43,9 +44,10 @@ What a Hangar is:
   with `hangar port`.
 
 What it is not is an application. It has no deployments, no build and no custom domain,
-and no `app`, `deploy`, `env`, `port`, `domain`, `logs`, `requests` or `metrics` command
+and no `app`, `deploy`, `port`, `domain`, `logs`, `requests` or `metrics` command
 reaches one: given a Hangar's name they answer not found. Its ports are `hangar port`,
-never `port`, and its usage is `hangar metrics`, never `metrics`. `app list` leaves
+never `port`, its variables are `env --hangar`, never `env --app`, its usage is
+`hangar metrics`, never `metrics`, and pausing it is `hangar pause`, never `app pause`. `app list` leaves
 Hangars out and `hangar list` leaves applications out, **yet the two share one set of
 names**: a name either one holds is taken for both.
 
@@ -59,14 +61,14 @@ outplane hangar create myhangar --dry-run --json    # checks everything, sends n
 outplane hangar create myhangar --json
 ```
 
-Decide these before running it, because no command changes them afterwards:
+Decide these before running it, because no command changes the first two afterwards:
 
 | Question | Flag | Why it matters now |
 | --- | --- | --- |
 | What is it called? | the positional name | **Permanent**, and drawn from the same names as the team's applications |
 | Which agents? | `--agent`, repeatable, or `--terminal-only` for none | Installed at creation. Without either, the default set the schema names |
-| What do they need? | `--env`, `--env-group` | The variables are fixed at creation. Agents' API keys go here, or the agents sign in from the terminal |
-| How long may it sit idle? | `--idle-timeout` | Recorded at creation. Do not promise the user that the Hangar pauses on its own |
+| What do they need? | `--env`, `--env-group` | Agents' API keys go here, or the agents sign in from the terminal. `env set --hangar` and `env group assign --hangar` change them later, from its next start |
+| How long may it sit idle? | `--idle-timeout`, 30 minutes unless given | It pauses on its own after that long without activity; see Pausing it. `hangar update` changes it later |
 
 The size and the disk are the platform's choice, not a flag. The result reports them as
 `size` and `diskGb`.
@@ -104,8 +106,8 @@ outplane hangar create worker2 --agent codex --env-group ai-keys --json
 - **The key is the team's.** Everyone who joins the Hangar can read it, so it should be
   a team key, not someone's personal one. Say so before using one.
 - **One group serves every Hangar.** Changing the key later means changing the group.
-  A Hangar's variables are fixed when it is created, so a Hangar created before the
-  change keeps the old value until it is created again.
+  Each Hangar picks up the change the next time it starts, at `hangar restart`, or at
+  `hangar resume` when it is paused.
 
 Several Hangars are separate machines that work in parallel, up to the team's limit.
 Giving one of them a task still happens in its terminal: hand the user
@@ -128,7 +130,8 @@ outplane hangar get myhangar --json --fields status    # until ready
 - `crashed` when it stopped unexpectedly. It restarts on its own. Report it, and if it
   stays down after a few minutes, stop polling; deleting it and creating it again is the
   user's call.
-- `paused` outranks the rest.
+- `paused` outranks the rest: someone paused it, or its idle timeout did. See Pausing
+  it.
 - `unknown:N` is a state this release does not recognise; treat it as unknown, not as a
   failure.
 
@@ -159,7 +162,7 @@ outplane hangar get myhangar --json --fields status,agents
 ```
 
 The list is the whole team's in one response. Variables are never included, in any
-format, and no flag adds them.
+format, and no flag adds them: `env list --hangar` is where they are.
 
 ## Is it busy, is it full
 
@@ -200,7 +203,8 @@ What to do instead:
 
 1. Check that it runs: `outplane hangar get myhangar --json --fields status`. Until it
    is `ready`, connecting is refused with exit `6`, a conflict, which is worth retrying
-   only while it is still starting.
+   only while it is still starting. A `paused` one is refused the same way until
+   `hangar resume` brings it back.
 2. If the name is in doubt, `outplane hangar connect myhangar --dry-run --json` runs
    anywhere and reports which Hangar it reaches. It joins nothing.
 3. Give the user the command to run in their own terminal, as
@@ -259,6 +263,38 @@ Two refusals only the server makes:
 
 The exact error codes are in `outplane schema hangar port set`.
 
+## Its variables and groups
+
+```bash
+outplane env list --hangar myhangar --json                      # values masked unless --reveal
+outplane env set LOG_LEVEL=debug --hangar myhangar --dry-run --json
+outplane env set LOG_LEVEL=debug --hangar myhangar --json
+outplane env unset LOG_LEVEL --hangar myhangar --json
+outplane env group assign ai-keys --hangar myhangar --json
+outplane env group unassign ai-keys --hangar myhangar --json
+```
+
+These are the application's `env` commands with `--hangar` in place of `--app`, so the
+rules are the ones `env set` follows: only the keys named change, and the keys the
+platform reserves are refused before anything is sent. The result's `app` field holds the
+Hangar's name. `unset` removes the Hangar's own variables only; a group's go with
+`env group unassign --hangar`.
+
+- **Saving changes nothing that is running.** A Hangar starts from its saved variables,
+  groups and ports, so a change applies at its next `hangar restart`, or at
+  `hangar resume` when it is paused. A change to a linked group, made with
+  `env group set` or in the console, reaches it the same way. Say so when reporting the
+  change.
+- **`--restart` applies it now, and it is a restart.** It ends everything running in the
+  terminal session, other people's agents included, so it is the user's call, as in
+  Restarting it. On a paused Hangar it restarts nothing, and the change applies at
+  resume.
+- **`restarted: false` with exit `0` after `--restart`** means the change is saved and
+  the restart was refused. The reason is on standard error, and `hangar restart` is the
+  retry.
+- **Everyone who joins the Hangar can read its variables.** For an agent's API key,
+  prefer a group the user fills in, and do not ask for the key itself.
+
 ## Restarting it
 
 ```bash
@@ -274,6 +310,8 @@ existing Hangar picks up a newer image. It is back in under a minute.
   everyone connected is disconnected.
 - **What stays:** the files under its home directory, `/home/hangar`. Its name,
   variables and ports do not change.
+- **What applies:** it starts with the variables, groups and ports saved by then, so a
+  change saved with `env ... --hangar` since it last started takes effect.
 - **It is the user's call.** It ends other people's sessions and the agents they left
   running, and a Hangar is the team's, so somebody else may be working in it right now.
   Ask the user before restarting one, and say what it stops. For the Hangar you are
@@ -282,10 +320,55 @@ existing Hangar picks up a newer image. It is back in under a minute.
   `ready` in the first few seconds can still be the state from before the restart. Check
   every few seconds for a few minutes at most; if it is not `ready` by then, report what
   `status` says rather than restarting again.
-- **Exit `6`, a conflict:** nothing is running to restart, as when it never started.
-  Retrying does not help.
+- **Exit `6`, a conflict:** nothing is running to restart, as when it never started,
+  or it is paused, when `hangar resume` is the way back. Retrying does not help.
 
 The exact error codes are in `outplane schema hangar restart`.
+
+## Pausing it
+
+```bash
+outplane hangar pause myhangar --json
+outplane hangar resume myhangar --json
+outplane hangar get myhangar --json --fields status    # after a resume, until ready
+```
+
+- **What stops:** the machine, with everything running in its terminal session, every
+  agent included, and everyone connected is disconnected. Nothing answers on its ports.
+- **What stays:** the files under `/home/hangar`, its ports and its variables.
+- **Resuming** starts it on a new machine with the same disk, in under a minute, with
+  the variables, groups and ports saved by then. What was running before the pause does
+  not carry on. Poll `status` as after a restart.
+- **While paused** it refuses `hangar connect` and `hangar restart` with exit `6`, and
+  `hangar metrics` reports `null` CPU and memory. Resuming it is the way back.
+- **Pausing is the user's call.** Like a restart, it ends other people's sessions and the
+  agents they left running. Ask the user first, and say what it stops. For the Hangar
+  you are running in, see below.
+- **Exit `6`, a conflict:** it has no machine yet. While it is still starting for the
+  first time `retryable` is true, so try again once it is `ready`; one that never
+  started stays that way.
+
+### Pausing on its own
+
+A Hangar pauses on its own once nothing has happened in its terminal for its idle
+timeout: no output in any window, from an agent, a build or a server's log, and no key
+from anyone connected, in the console or the CLI. Traffic on its ports counts only if a
+server prints it. The platform checks every 5 minutes, so a timeout of 30 minutes pauses
+it between 30 and 35 minutes after the last activity.
+
+```bash
+outplane hangar get myhangar --json --fields idleTimeoutMinutes    # null for never
+outplane hangar update myhangar --idle-timeout 2h --json
+outplane hangar update myhangar --idle-timeout never --json
+```
+
+- **The choices** are 15 and 30 minutes, 1, 2, 6, 12 and 24 hours, and never; the
+  spellings are in `outplane schema hangar update`. A new Hangar gets 30 minutes unless
+  `--idle-timeout` says otherwise. A change applies from the next check and restarts
+  nothing.
+- **An agent at work keeps it awake**, because its output is activity. **An agent
+  waiting on a person does not**: a question left unanswered for longer than the timeout
+  lets the Hangar pause, and ends the agent with it.
 
 ## When you are running inside a Hangar
 
@@ -298,10 +381,15 @@ set to the Hangar's name; when it is set, you are inside that Hangar. Then:
 - **Deleting it deletes the machine this work is on.** The deletion is the user's to
   confirm in any case. Before relaying the command, say that the disk goes with it and
   that anything not committed and pushed is lost.
-- **Never restart the Hangar you are in without the user's explicit go-ahead.** It ends
-  this process along with everything else in the session, so nothing you run after it
-  happens, the check that it came back included. Say so, and leave that check to the
-  user.
+- **Never restart or pause the Hangar you are in without the user's explicit
+  go-ahead**, `env ... --hangar --restart` included. Either ends this process along with everything else in the session, so
+  nothing you run after it happens, the check that it came back included. Say so, and
+  leave that check to the user. A paused one stays down until somebody resumes it from
+  the console or a terminal of their own.
+- **Waiting on the user counts as idle.** Before you stop to wait on an answer that may
+  take longer than this Hangar's idle timeout, tell the user it pauses then and ends
+  this session. A longer timeout is theirs to choose, not a way to keep yourself
+  running.
 - **Work that has to outlive the Hangar belongs in a repository.** The disk survives a
   restart, not a deletion.
 - **Keep clones, builds and caches under the home directory.** Everything outside it,
@@ -312,9 +400,14 @@ set to the Hangar's name; when it is set, you are inside that Hangar. Then:
   Hangar, `outplane hangar port set "$HANGAR_NAME" <port>:http:public`, which anyone on
   the internet can open. Say so, bind the server to `0.0.0.0`, then give them that port's
   `url` from `ports` in the result. A private port is for the team's applications only.
-- **If the CLI there is not signed in**, ask the user to run `outplane login` in one of
-  the Hangar's windows. There is no browser on a Hangar, so the command asks for a token
-  to be pasted, which is a step for the person and not for you.
+- **If `outplane whoami` fails**, the CLI there has no credential. Ask the user to run
+  `outplane login` in one of the Hangar's windows: there is no browser on a Hangar, so it
+  prints a console link and reads a token they paste, a step for the person and not for
+  you. Or ask them to add an API token as `OUTPLANE_TOKEN` on the Hangar's Environment
+  tab in the console, which reaches this shell only after the Hangar restarts and so
+  ends this session. **Never ask them to paste a token into the chat.** Either way,
+  everyone who can open the Hangar can use that credential, with a team token's access;
+  say so.
 
 ## Deleting
 
@@ -344,19 +437,15 @@ for another Hangar.
 None of these is a command. Do not offer them, and do not reach for an `app` command as
 a substitute, because none of those sees a Hangar.
 
-- **Pausing or resuming a Hangar.** `app pause` does not reach one.
-- **Changing it after creation**: its variables, its agents, its name. Deleting it and
-  creating it again is the only way, and the disk does not carry over.
+- **Changing its agents or its name after creation.** Deleting it and creating it again
+  is the only way, and the disk does not carry over. Its variables and groups do change,
+  with `env ... --hangar`, and so does its idle timeout, with `hangar update`.
 - **Choosing its size or its disk.**
 - **Cloning a repository at creation.** Clone it from the terminal, as on any machine.
 - **A custom domain or an IP access profile on a Hangar's port.** A public port is open
   to everyone. To serve something behind either, deploy it as an application.
 - **Logs or requests for a Hangar.** What it is using is `hangar metrics`; `logs`,
   `requests` and `metrics` do not reach one.
-- **Unassigning a variable group from a Hangar with the CLI.** `env group get --apps`
-  lists a Hangar among the group's users, but `env group unassign` reaches applications
-  only. The user removes a Hangar's assignment on the variable group's page in the
-  console (Unlink).
 
 If `outplane schema hangar` lists a command for one of these, it arrived after this was
 written. Use it.
