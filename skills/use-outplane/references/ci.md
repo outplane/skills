@@ -91,6 +91,7 @@ built again.
 | `outplane login` | Needs a browser or a person to paste a token |
 | `outplane link`, `outplane team use` | Write to the checkout or the machine |
 | `outplane app shell` | Needs a real terminal at both ends. Exits `2` behind a pipe |
+| `outplane hangar connect` | The same: it joins a terminal session. Exits `2` behind a pipe |
 | Destructive commands | Never prompt. They stop with exit `4` |
 
 ## Destructive commands in a pipeline

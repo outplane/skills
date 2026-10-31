@@ -1,8 +1,8 @@
 {
   "name": "outplane",
   "displayName": "Out Plane",
-  "version": "0.2.1",
-  "description": "Deploy and operate applications on Out Plane from a coding agent: applications, deployments, environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics.",
+  "version": "0.3.0",
+  "description": "Deploy and operate applications on Out Plane from a coding agent: applications, deployments, environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics, and Hangars for coding agents.",
   "author": {
     "name": "Out Plane",
     "email": "hello@outplane.com",

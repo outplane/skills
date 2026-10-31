@@ -45,7 +45,8 @@ result reports how many were set.
 
 Everything the server would refuse is checked before anything is sent, so an error names
 the field. The two exceptions are the plan limit and the name already being taken, which
-only the server knows.
+only the server knows. A name a Hangar holds is taken too: applications and Hangars
+share one set of names, and `app list` does not show Hangars, `hangar list` does.
 
 `--volume` and `--env-group` take ids of things that already exist, and attaching is best
 effort: one that cannot be attached is skipped and the creation still succeeds. Confirm

@@ -2,7 +2,8 @@
 
 Teaches a coding agent to deploy and operate applications on
 [Out Plane](https://outplane.com): applications and deployments, environment variables,
-ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics.
+ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics, and
+Hangars, the team's cloud machines for coding agents.
 
 One skill, `use-outplane`. It loads on its own when the conversation is about Out Plane,
 so there is nothing to remember and nothing to type.
@@ -84,6 +85,7 @@ Once it is installed, ask your agent things like:
 - "Is my app healthy? What are the 5xx responses?"
 - "Create a Postgres database and wire it into the app."
 - "Only let the office network reach this service."
+- "Set up a Hangar our coding agents can keep working in."
 
 ## How it is built
 
@@ -97,6 +99,7 @@ skills/use-outplane/
     ├── data.md           db, volume
     ├── operate.md        logs, requests, metrics, shell, instances, scale, pause
     ├── manage.md         app lifecycle, registry credentials
+    ├── hangars.md        hangar, machines for coding agents
     ├── session.md        login, link, team, status, update, api
     ├── errors.md         exit codes, the error object, every error code
     └── ci.md             running where there is no terminal

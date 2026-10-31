@@ -3,23 +3,25 @@ name: use-outplane
 description: >
   Operate Out Plane: deploy applications, read logs, requests and metrics, manage
   environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access
-  and registry credentials. Use whenever the user mentions Out Plane, the `outplane`
+  and registry credentials, and create, inspect or delete Hangars, the team's cloud
+  machines for coding agents. Use whenever the user mentions Out Plane, the `outplane`
   CLI, deploying or redeploying an app, a build that failed, an app that is down or
-  unreachable, environment variables, a custom domain, a connection string, or a
-  persistent disk, even if they do not say "Out Plane" explicitly. Do NOT use for
-  deployments to other hosting platforms.
+  unreachable, environment variables, a custom domain, a connection string, a
+  persistent disk, or a Hangar, even if they do not say "Out Plane" explicitly. Do NOT
+  use for deployments to other hosting platforms.
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.2.1"
+  version: "0.3.0"
   category: deployment
 ---
 
 # Use Out Plane
 
-Out Plane runs applications and managed PostgreSQL databases. Everything is done with
-one binary, `outplane`, built to be driven by a program: structured output, a stable
-exit-code contract, and a machine-readable description of itself.
+Out Plane runs applications, managed PostgreSQL databases, and Hangars: cloud machines
+the team's coding agents work on. Everything is done with one binary, `outplane`, built
+to be driven by a program: structured output, a stable exit-code contract, and a
+machine-readable description of itself.
 
 ## Retrieve rather than recall
 
@@ -61,6 +63,10 @@ Three rules follow, and they matter more than anything else in this file:
 - **Volume** is a disk that survives deployments.
 - **Managed database** is a PostgreSQL instance holding roles and databases.
 - **IP access profile** is a list of networks allowed to reach an application.
+- **Hangar** is a cloud machine for coding agents that the team shares: the agents
+  chosen at creation, a disk that keeps its files, and one terminal session that keeps
+  running. It is not an application and no `app` command reaches one, but its name
+  comes from the same set as the applications'.
 
 ## Route by intent, before any ceremony
 
@@ -72,6 +78,14 @@ Getting something running?
 ├─ From a prebuilt image, first time → outplane app create --image <image>
 ├─ It already exists, ship again     → outplane deploy create --wait
 └─ Not signed in yet                 → outplane login   (opens the console, approve there)
+```
+
+```
+Somewhere for coding agents to work, rather than something to serve?
+├─ A machine for the team's agents → outplane hangar create <name>   (a Hangar, not an app)
+├─ Is it ready, what is on it      → outplane hangar get <name> --json
+├─ Get into its terminal           → hand the user: outplane hangar connect <name>
+└─ Remove it                       → outplane hangar delete <name>   (stops with exit 4)
 ```
 
 ```
@@ -188,6 +202,7 @@ Load one reference. Two at most.
 | Use a database or a persistent disk | `references/data.md` | `db`, `volume` |
 | Find out what it is doing, or why it broke | `references/operate.md` | `logs`, `requests`, `metrics`, `app shell`, `app instances`, `app scale`, `app pause`, `app resume` |
 | Create, inspect, rename or delete an application | `references/manage.md` | `app`, `registry` |
+| Give coding agents a machine of their own, or get into one | `references/hangars.md` | `hangar` |
 | Sign in, switch team, link a directory | `references/session.md` | `login`, `link`, `team`, `status`, `whoami`, `repos`, `update`, `api` |
 | Understand a failure | `references/errors.md` | exit codes, the error object, every error code |
 | Run this in a pipeline | `references/ci.md` | no terminal, no keychain, `OUTPLANE_TOKEN` |
@@ -213,8 +228,10 @@ outplane schema | jq -r '.commands[] | select(.risk == "read") | .name'
   `deploy logs` is the **build**; `logs` is the running application.
 - `env push` is not a synchronisation: a variable missing from the file is left alone.
   Removing one is `env unset`.
-- `app shell` needs a real terminal at both ends. Behind a pipe or an agent harness it
-  exits `2` and opens nothing.
+- `app shell` and `hangar connect` need a real terminal at both ends. Behind a pipe or
+  an agent harness they exit `2` and open nothing. Hand the user the command instead.
+- Hangars are not applications. `app list` leaves them out, yet a name a Hangar holds
+  is taken for applications too, and the other way round.
 
 ## Answering
 
