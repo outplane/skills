@@ -14,7 +14,9 @@ A machine in the cloud for the team's coding agents, and how to get into it.
 When this file disagrees with either of them, they win.
 
 If `outplane schema hangar` exits `2` because it does not know the command, the
-installed CLI is older than Hangars. `outplane update` is the fix.
+installed CLI is older than Hangars. `outplane update` is the fix. The same goes for
+`outplane schema hangar port`, `outplane schema hangar metrics` and
+`outplane schema hangar restart`, which arrived later than the rest.
 
 ## A Hangar or an application
 
@@ -37,12 +39,15 @@ What a Hangar is:
 - One terminal session that keeps running between connections. Everyone who joins it
   sees the same screen and types into the same programs.
 - It belongs to the team, not to whoever created it.
+- Up to three ports for the dev servers its agents run, opened and closed at any time
+  with `hangar port`.
 
-What it is not is an application. It has no ports, no address, no deployments, no build
-and no domain, and no `app`, `deploy`, `env`, `port`, `domain`, `logs`, `requests` or
-`metrics` command reaches one: given a Hangar's name they answer not found. `app list`
-leaves Hangars out and `hangar list` leaves applications out, **yet the two share one
-set of names**: a name either one holds is taken for both.
+What it is not is an application. It has no deployments, no build and no custom domain,
+and no `app`, `deploy`, `env`, `port`, `domain`, `logs`, `requests` or `metrics` command
+reaches one: given a Hangar's name they answer not found. Its ports are `hangar port`,
+never `port`, and its usage is `hangar metrics`, never `metrics`. `app list` leaves
+Hangars out and `hangar list` leaves applications out, **yet the two share one set of
+names**: a name either one holds is taken for both.
 
 A `hangar` command that acts on one Hangar takes it by name or id, and never falls back
 to the linked application.
@@ -156,6 +161,29 @@ outplane hangar get myhangar --json --fields status,agents
 The list is the whole team's in one response. Variables are never included, in any
 format, and no flag adds them.
 
+## Is it busy, is it full
+
+```bash
+outplane hangar metrics --json                 # every Hangar in the team
+outplane hangar metrics myhangar --json --fields hangar,status,memoryPercent,diskPercent
+```
+
+CPU and memory now, against `cpuLimitMillicores` and `memoryLimitMb`, which are what its
+size allows, and how full its home disk is. A snapshot, not a history: the console's
+Overview draws the last hour. Naming one Hangar costs what naming none does, so ask once
+rather than in a loop.
+
+- **`null` is not idle.** While nothing runs, starting or paused, CPU and memory are
+  `null` and `status` says why. Do not report it as 0%.
+- **Memory is the one to watch.** A Hangar that reaches its memory limit freezes rather
+  than restarting, with the session and every agent in it, and `status` can go on
+  reading `ready`. At `memoryPercent` 90 or more, act before it gets there: stop an
+  agent or a dev server it does not need, or move the work to another Hangar. The text
+  output warns under the table; `--json` carries only the number.
+- **The disk is the home disk, as last measured**, so a paused Hangar still reports it.
+- **Temporary storage is not reported.** Everything outside the home directory, `/tmp`
+  included, is measured nowhere, so a low `diskPercent` says nothing about it.
+
 ## Getting into its terminal
 
 ```bash
@@ -190,6 +218,75 @@ Tell them three things with it:
 - Leaving stops nothing. What runs there keeps running, and connecting again picks it up
   where it is.
 
+## Ports for its dev servers
+
+```bash
+outplane hangar port list myhangar --json
+outplane hangar port set myhangar 3000                # a new port is private HTTP: the team's apps reach it
+outplane hangar port set myhangar 3000:http:public    # also open to everyone on the internet
+outplane hangar port unset myhangar 3000 --dry-run    # what would be left
+```
+
+The Hangar is always the first argument, never `--app`. The spec is the one `port set`
+takes, `PORT[:SCHEME[:public|private]]`, and a part left out keeps what the port already
+had; a new port is private HTTP.
+
+- **Private or public.** Every open port is reachable from the team's applications at
+  `internal`, which is `name:port`. A public one also has `url`: an https address for
+  `http` and `h2c`, a host and a port number for `tcp`. **Public is open to everyone on
+  the internet**, because a Hangar takes no IP access profile and no custom domain. Keep
+  a port private unless the user wants an outside address, and say so when making one
+  public.
+- **No `--deploy`, no restart.** A save is live within seconds, and the terminal session
+  and the agents in it keep running. Do not tell the user it needs a deployment.
+- **The dev server must listen on `0.0.0.0`.** One that listens on `localhost` is reached
+  by nothing outside the Hangar: the public address answers `502`, and applications and
+  tcp clients have the connection refused. Check the bind before blaming the port.
+- **Checked before sending:** at most 3 ports, 1 to 65535, none twice, never `7070`,
+  which is the Hangar's own. The codes are in `outplane schema hangar port set`.
+
+Two refusals only the server makes:
+
+- **Exit `5`, not found, on a Hangar that exists.** It never started, so there is
+  nothing to route to. The ports are saved all the same and show in `hangar port list`,
+  but nothing reaches them. Deleting it and creating it again is the user's call.
+- **Exit `8`.** Saved, but not on the Hangar yet. After `set` the same command again
+  applies it. After `unset` it does not, because those ports are already closed in the
+  saved set: if a port is still open, run the `hangar port set` step the error hands
+  back; if none is left, open a port and close it again. Until then the closed ports may
+  still answer, a public one included, and `hangar port list` shows the saved set rather
+  than what the Hangar serves. Tell the user.
+
+The exact error codes are in `outplane schema hangar port set`.
+
+## Restarting it
+
+```bash
+outplane hangar restart myhangar --json
+outplane hangar get myhangar --json --fields status    # until ready
+```
+
+The Hangar starts again on a new machine with the same disk, and the Hangar image is
+pulled again. It is the way out of a Hangar frozen at its memory limit, and how an
+existing Hangar picks up a newer image. It is back in under a minute.
+
+- **What stops:** everything running in its terminal session, every agent included, and
+  everyone connected is disconnected.
+- **What stays:** the files under its home directory, `/home/hangar`. Its name,
+  variables and ports do not change.
+- **It is the user's call.** It ends other people's sessions and the agents they left
+  running, and a Hangar is the team's, so somebody else may be working in it right now.
+  Ask the user before restarting one, and say what it stops. For the Hangar you are
+  running in, see below.
+- **Poll until it is back, and stop.** `status` reads `deploying`, then `ready`; a
+  `ready` in the first few seconds can still be the state from before the restart. Check
+  every few seconds for a few minutes at most; if it is not `ready` by then, report what
+  `status` says rather than restarting again.
+- **Exit `6`, a conflict:** nothing is running to restart, as when it never started.
+  Retrying does not help.
+
+The exact error codes are in `outplane schema hangar restart`.
+
 ## When you are running inside a Hangar
 
 The agents in a Hangar read this skill too. Every shell in a Hangar has `HANGAR_NAME`
@@ -201,12 +298,20 @@ set to the Hangar's name; when it is set, you are inside that Hangar. Then:
 - **Deleting it deletes the machine this work is on.** The deletion is the user's to
   confirm in any case. Before relaying the command, say that the disk goes with it and
   that anything not committed and pushed is lost.
+- **Never restart the Hangar you are in without the user's explicit go-ahead.** It ends
+  this process along with everything else in the session, so nothing you run after it
+  happens, the check that it came back included. Say so, and leave that check to the
+  user.
 - **Work that has to outlive the Hangar belongs in a repository.** The disk survives a
   restart, not a deletion.
 - **Keep clones, builds and caches under the home directory.** Everything outside it,
   `/tmp` included, is temporary and capped, and going over the cap restarts the machine,
   which ends every program in the session, this one and other people's included.
   `https://docs.outplane.com/docs/console/hangars.md` has the sizes.
+- **To let the user open a dev server you started**, it needs a public port on this
+  Hangar, `outplane hangar port set "$HANGAR_NAME" <port>:http:public`, which anyone on
+  the internet can open. Say so, bind the server to `0.0.0.0`, then give them that port's
+  `url` from `ports` in the result. A private port is for the team's applications only.
 - **If the CLI there is not signed in**, ask the user to run `outplane login` in one of
   the Hangar's windows. There is no browser on a Hangar, so the command asks for a token
   to be pasted, which is a step for the person and not for you.
@@ -244,9 +349,10 @@ a substitute, because none of those sees a Hangar.
   creating it again is the only way, and the disk does not carry over.
 - **Choosing its size or its disk.**
 - **Cloning a repository at creation.** Clone it from the terminal, as on any machine.
-- **Ports or an address.** Nothing outside reaches a server started in a Hangar. To
-  serve something, deploy it as an application.
-- **Logs, requests or metrics for a Hangar.**
+- **A custom domain or an IP access profile on a Hangar's port.** A public port is open
+  to everyone. To serve something behind either, deploy it as an application.
+- **Logs or requests for a Hangar.** What it is using is `hangar metrics`; `logs`,
+  `requests` and `metrics` do not reach one.
 - **Unassigning a variable group from a Hangar with the CLI.** `env group get --apps`
   lists a Hangar among the group's users, but `env group unassign` reaches applications
   only. The user removes a Hangar's assignment on the variable group's page in the

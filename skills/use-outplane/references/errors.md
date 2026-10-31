@@ -52,8 +52,10 @@ Three of these change what an agent should do next:
 
 - **`4` is not a failure.** A destructive command stopped and handed back the exact
   command that would proceed. Relay it. Do not retry, and do not report it as an error.
-- **`8` and `124` are worth retrying**, and nothing else is. `7` in particular is a plan
-  limit rather than rate limiting; retrying it never helps.
+- **Follow `retryable`.** It is true on `8` and `124` unless the error says otherwise,
+  and on `hangar connect`'s `6` while a Hangar is still starting; nothing else is worth
+  retrying. `7` in particular is a plan limit rather than rate limiting;
+  retrying it never helps.
 - **`9` has one remedy**: `outplane update`.
 
 ## When a command fails, in order

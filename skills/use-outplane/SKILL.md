@@ -12,7 +12,7 @@ description: >
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.3.0"
+  version: "0.4.0"
   category: deployment
 ---
 
@@ -85,6 +85,9 @@ Somewhere for coding agents to work, rather than something to serve?
 ├─ A machine for the team's agents → outplane hangar create <name>   (a Hangar, not an app)
 ├─ Is it ready, what is on it      → outplane hangar get <name> --json
 ├─ Get into its terminal           → hand the user: outplane hangar connect <name>
+├─ Open a dev server's port        → outplane hangar port set <name> <port>[:http:public]   (no restart)
+├─ Is it busy or full              → outplane hangar metrics <name>   (memory at its limit freezes it)
+├─ Frozen, or on an old image      → outplane hangar restart <name>   (ends its session and agents; ask first)
 └─ Remove it                       → outplane hangar delete <name>   (stops with exit 4)
 ```
 
@@ -202,7 +205,7 @@ Load one reference. Two at most.
 | Use a database or a persistent disk | `references/data.md` | `db`, `volume` |
 | Find out what it is doing, or why it broke | `references/operate.md` | `logs`, `requests`, `metrics`, `app shell`, `app instances`, `app scale`, `app pause`, `app resume` |
 | Create, inspect, rename or delete an application | `references/manage.md` | `app`, `registry` |
-| Give coding agents a machine of their own, or get into one | `references/hangars.md` | `hangar` |
+| Give coding agents a machine of their own, get into one, open its ports, or see what it uses | `references/hangars.md` | `hangar`, `hangar port`, `hangar metrics` |
 | Sign in, switch team, link a directory | `references/session.md` | `login`, `link`, `team`, `status`, `whoami`, `repos`, `update`, `api` |
 | Understand a failure | `references/errors.md` | exit codes, the error object, every error code |
 | Run this in a pipeline | `references/ci.md` | no terminal, no keychain, `OUTPLANE_TOKEN` |
