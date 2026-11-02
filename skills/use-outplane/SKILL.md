@@ -12,7 +12,7 @@ description: >
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.5.0"
+  version: "0.6.0"
   category: deployment
 ---
 
@@ -83,6 +83,7 @@ Getting something running?
 ```
 Somewhere for coding agents to work, rather than something to serve?
 ├─ A machine for the team's agents → outplane hangar create <name>   (a Hangar, not an app)
+├─ With a repository on it         → outplane hangar create <name> --repo owner/name --branch main   (cloned once)
 ├─ Is it ready, what is on it      → outplane hangar get <name> --json
 ├─ Get into its terminal           → hand the user: outplane hangar connect <name>
 ├─ Open a dev server's port        → outplane hangar port set <name> <port>[:http:public]   (no restart)

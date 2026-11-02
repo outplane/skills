@@ -16,8 +16,8 @@ When this file disagrees with either of them, they win.
 If `outplane schema hangar` exits `2` because it does not know the command, the
 installed CLI is older than Hangars. `outplane update` is the fix. The same goes for
 `port`, `metrics`, `restart`, `pause`, `resume` and `update` under
-`outplane schema hangar`, which arrived later than the rest, and for an `env` command
-that does not know `--hangar`.
+`outplane schema hangar`, which arrived later than the rest, for an `env` command that
+does not know `--hangar`, and for a `hangar create` that does not know `--repo`.
 
 ## A Hangar or an application
 
@@ -61,12 +61,13 @@ outplane hangar create myhangar --dry-run --json    # checks everything, sends n
 outplane hangar create myhangar --json
 ```
 
-Decide these before running it, because no command changes the first two afterwards:
+Decide these before running it, because no command changes the first three afterwards:
 
 | Question | Flag | Why it matters now |
 | --- | --- | --- |
 | What is it called? | the positional name | **Permanent**, and drawn from the same names as the team's applications |
 | Which agents? | `--agent`, repeatable, or `--terminal-only` for none | Installed at creation. Without either, the default set the schema names |
+| Which repository, if any? | `--repo owner/name --branch <branch>`, plus `--public-repo` for a public one | Cloned once, on its first start; see A repository on it. Without `--repo`, none |
 | What do they need? | `--env`, `--env-group` | Agents' API keys go here, or the agents sign in from the terminal. `env set --hangar` and `env group assign --hangar` change them later, from its next start |
 | How long may it sit idle? | `--idle-timeout`, 30 minutes unless given | It pauses on its own after that long without activity; see Pausing it. `hangar update` changes it later |
 
@@ -81,6 +82,32 @@ The name is stored in lower case and the name as typed becomes the display name.
 `envCount` says how many were set. A variable from `--env` wins over a group's, and
 between groups the one given later wins. A group used only at build reaches nothing,
 because a Hangar never builds, and the command says so on standard error.
+
+### A repository on it
+
+```bash
+outplane repos --json --fields fullName,defaultBranch                        # what the user can pick
+outplane hangar create myhangar --repo acme/web --branch main --dry-run --json
+```
+
+- **Cloned once,** on the first start, into the home directory under the repository's
+  name: `acme/web` lands in `~/web`, and one named `go` or `bin` in `~/go-repo` or
+  `~/bin-repo`. From then on the clone is the user's. Nothing clones or pulls it again,
+  not a restart and not a resume.
+- **A private repository** is read through the GitHub installation of the user whose
+  credential this is, as for `app create`. `hangar.repository_unavailable` means the
+  platform cannot see it or its branch: send the user to `outplane repos`, which names
+  the page that grants access. Use `--public-repo` only for a repository that is public.
+- **A failed clone is not tried again.** The Hangar is created and starts all the same,
+  and its terminal says why the clone failed, with the `git clone` command to run by
+  hand. `hangar get` reports which repository was chosen, not whether the clone worked,
+  so do not report it as cloned from that.
+- **Pushing is the user's to set up.** The platform only clones, and leaves no GitHub
+  credential on the Hangar. To push, someone signs in to GitHub in the Hangar's terminal
+  with `gh auth login`, or pastes into it a fine-grained token limited to that one
+  repository, with Contents read and write. That sign in is kept on the Hangar's disk,
+  so everyone who can open the Hangar, every agent included, pushes as that identity.
+  Say so.
 
 ### Agents that are ready to work
 
@@ -392,6 +419,10 @@ set to the Hangar's name; when it is set, you are inside that Hangar. Then:
   running.
 - **Work that has to outlive the Hangar belongs in a repository.** The disk survives a
   restart, not a deletion.
+- **If `git push` is refused for want of a credential**, nobody has signed in to GitHub
+  on this Hangar yet. Ask the user to run `gh auth login` in one of its windows, a step
+  for the person and not for you, and say that everyone who can open the Hangar then
+  pushes as them. **Never ask for a GitHub token in the chat.**
 - **Keep clones, builds and caches under the home directory.** Everything outside it,
   `/tmp` included, is temporary and capped, and going over the cap restarts the machine,
   which ends every program in the session, this one and other people's included.
@@ -437,11 +468,12 @@ for another Hangar.
 None of these is a command. Do not offer them, and do not reach for an `app` command as
 a substitute, because none of those sees a Hangar.
 
-- **Changing its agents or its name after creation.** Deleting it and creating it again
-  is the only way, and the disk does not carry over. Its variables and groups do change,
+- **Changing its agents, its name or its repository after creation.** Deleting it and
+  creating it again is the only way, and the disk does not carry over. Its variables and groups do change,
   with `env ... --hangar`, and so does its idle timeout, with `hangar update`.
 - **Choosing its size or its disk.**
-- **Cloning a repository at creation.** Clone it from the terminal, as on any machine.
+- **Cloning again, pulling or pushing through the platform.** After the one clone at the
+  first start, the repository is `git` in the terminal, as on any machine.
 - **A custom domain or an IP access profile on a Hangar's port.** A public port is open
   to everyone. To serve something behind either, deploy it as an application.
 - **Logs or requests for a Hangar.** What it is using is `hangar metrics`; `logs`,
