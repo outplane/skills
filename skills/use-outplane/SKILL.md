@@ -2,26 +2,28 @@
 name: use-outplane
 description: >
   Operate Out Plane: deploy applications, read logs, requests and metrics, manage
-  environment variables, ports, custom domains, volumes, managed PostgreSQL, IP access
-  and registry credentials, and create, inspect or delete Hangars, the team's cloud
-  machines for coding agents. Use whenever the user mentions Out Plane, the `outplane`
-  CLI, deploying or redeploying an app, a build that failed, an app that is down or
-  unreachable, environment variables, a custom domain, a connection string, a
-  persistent disk, or a Hangar, even if they do not say "Out Plane" explicitly. Do NOT
-  use for deployments to other hosting platforms.
+  environment variables, ports, custom domains, volumes, managed PostgreSQL, S3
+  compatible buckets and their access keys, IP access and registry credentials, and
+  create, inspect or delete Hangars, the team's cloud machines for coding agents. Use
+  whenever the user mentions Out Plane, the `outplane` CLI, deploying or redeploying an
+  app, a build that failed, an app that is down or unreachable, environment variables, a
+  custom domain, a connection string, a persistent disk, a bucket, object storage,
+  somewhere for an app to keep uploaded files, or a Hangar, even if they do not say "Out
+  Plane" explicitly. Do NOT use for deployments to other hosting platforms, or for
+  buckets on another storage provider.
 allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.6.0"
+  version: "0.7.0"
   category: deployment
 ---
 
 # Use Out Plane
 
-Out Plane runs applications, managed PostgreSQL databases, and Hangars: cloud machines
-the team's coding agents work on. Everything is done with one binary, `outplane`, built
-to be driven by a program: structured output, a stable exit-code contract, and a
-machine-readable description of itself.
+Out Plane runs applications, managed PostgreSQL databases, S3 compatible buckets, and
+Hangars: cloud machines the team's coding agents work on. Everything is done with one
+binary, `outplane`, built to be driven by a program: structured output, a stable
+exit-code contract, and a machine-readable description of itself.
 
 ## Retrieve rather than recall
 
@@ -61,6 +63,8 @@ Three rules follow, and they matter more than anything else in this file:
 - **Port** is what an application serves on. Private unless it says otherwise.
 - **Custom domain** is a host, and optionally a path, pointing at one port.
 - **Volume** is a disk that survives deployments.
+- **Bucket** is S3 compatible storage for files, owned by the team and reached by any S3
+  client holding one of its **access keys**. A key opens that one bucket only.
 - **Managed database** is a PostgreSQL instance holding roles and databases.
 - **IP access profile** is a list of networks allowed to reach an application.
 - **Hangar** is a cloud machine for coding agents that the team shares: the agents
@@ -98,6 +102,16 @@ Somewhere for coding agents to work, rather than something to serve?
 ```
 
 ```
+Somewhere to keep files, rather than a disk?
+├─ A bucket for an app's files → outplane bucket create <name>   (private unless --public)
+├─ What its S3 client needs    → outplane bucket get <name> --json   (bucketName, not name)
+├─ Give an app access to it    → hand the user: outplane bucket key create <bucket> <name> --permission <permission>   (see references/buckets.md)
+├─ Make it public or private   → outplane bucket update <name> --public|--private   (takes minutes)
+├─ Which keys reach it         → outplane bucket key list <bucket>
+└─ Remove a bucket or a key    → outplane bucket delete <name>, or bucket key delete   (both stop with exit 4)
+```
+
+```
 Changing configuration? What matters is whether it reaches the running
 application on its own.
 
@@ -107,6 +121,7 @@ application on its own.
 ├─ Volume mount         → volume attach --deploy  reaches it at the next deployment
 ├─ Custom domain        → domain add / point      immediate, no deployment
 ├─ IP access            → ip-profile assign       immediate, no deployment
+├─ Bucket visibility    → bucket update           no deployment, can take minutes
 └─ Instances or size    → app scale               immediate, no deployment
 ```
 
@@ -209,6 +224,7 @@ Load one reference. Two at most.
 | Set variables or open a port | `references/configure.md` | `env`, `env group`, `port` |
 | Give it an address, or restrict who reaches it | `references/network.md` | `domain`, `ip-profile` |
 | Use a database or a persistent disk | `references/data.md` | `db`, `volume` |
+| Keep files in a bucket, give an application its keys, or serve files by link | `references/buckets.md` | `bucket`, `bucket key` |
 | Find out what it is doing, or why it broke | `references/operate.md` | `logs`, `requests`, `metrics`, `app shell`, `app instances`, `app scale`, `app pause`, `app resume` |
 | Create, inspect, rename or delete an application | `references/manage.md` | `app`, `registry` |
 | Give coding agents a machine of their own, get into one, open its ports, change its variables, see what it uses, or pause it | `references/hangars.md` | `hangar`, `hangar port`, `env --hangar`, `hangar metrics`, `hangar pause` |
@@ -243,6 +259,11 @@ outplane schema | jq -r '.commands[] | select(.risk == "read") | .name'
   is taken for applications too, and the other way round.
 - A Hangar pauses on its own once its terminal has been quiet for its idle timeout, 30
   minutes unless chosen. A paused one refuses `hangar connect` until `hangar resume`.
+- A bucket has two names. `bucket` commands take `name`; an S3 client needs
+  `bucketName`, which carries a suffix. Path-style requests fail: clients need
+  virtual-hosted addressing.
+- A bucket key's secret is printed once, to whoever ran `bucket key create`, and nothing
+  reads it again. There is no rotation: a new key, then delete the old one.
 
 ## Answering
 

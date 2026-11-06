@@ -2,8 +2,8 @@
 
 Teaches a coding agent to deploy and operate applications on
 [Out Plane](https://outplane.com): applications and deployments, environment variables,
-ports, custom domains, volumes, managed PostgreSQL, IP access, logs and metrics, and
-Hangars, the team's cloud machines for coding agents.
+ports, custom domains, volumes, S3 compatible buckets, managed PostgreSQL, IP access,
+logs and metrics, and Hangars, the team's cloud machines for coding agents.
 
 One skill, `use-outplane`. It loads on its own when the conversation is about Out Plane,
 so there is nothing to remember and nothing to type.
@@ -71,8 +71,9 @@ credential and the CLI sends it to the Out Plane API, the same as when a person 
 the command. In a pipeline the credential comes from the runner's own secret store as
 `OUTPLANE_TOKEN`, which the CI example shows; the plugin does not run there.
 
-The agent does not install the CLI and does not run a destructive command. Both are
-handed to the user to run.
+The agent does not install the CLI, does not run a destructive command, and does not
+create a bucket key, whose secret is shown once. All three are handed to the user to
+run.
 
 ## Try it
 
@@ -86,6 +87,7 @@ Once it is installed, ask your agent things like:
 - "Create a Postgres database and wire it into the app."
 - "Only let the office network reach this service."
 - "Set up a Hangar our coding agents can keep working in."
+- "Create a bucket for this app's uploads."
 
 ## How it is built
 
@@ -97,6 +99,7 @@ skills/use-outplane/
     ├── configure.md      env, env group, port
     ├── network.md        domain, ip-profile
     ├── data.md           db, volume
+    ├── buckets.md        bucket, bucket key
     ├── operate.md        logs, requests, metrics, shell, instances, scale, pause
     ├── manage.md         app lifecycle, registry credentials
     ├── hangars.md        hangar, machines for coding agents

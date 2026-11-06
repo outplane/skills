@@ -1,7 +1,7 @@
 {
   "$schema": "https://code.claude.com/schemas/marketplace.json",
   "name": "outplane",
-  "description": "Out Plane agent skills: deploy and operate applications, databases, domains and disks from a coding agent.",
+  "description": "Out Plane agent skills: deploy and operate applications, databases, domains, disks and buckets from a coding agent.",
   "owner": {
     "name": "Out Plane",
     "url": "https://outplane.com"

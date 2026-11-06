@@ -19,6 +19,8 @@ Anything else a project needs is run as an ordinary application with a disk atta
 and it does not appear under `db`. Do not offer a managed engine that is not there;
 `outplane schema db create` enumerates what can actually be provisioned.
 
+Storage for files, such as uploads, is a bucket rather than a database; see `buckets.md`.
+
 ## Creating a database
 
 ```bash
@@ -87,6 +89,9 @@ outplane volume list --json
 ```
 
 The mount reaches the running application at its **next deployment**, not immediately.
+
+A disk serves one instance: an application with a volume runs a single one. Files that
+every instance shares, such as uploads, belong in a bucket; see `buckets.md`.
 
 Creating and attaching in one call is two steps on the server: the disk is made first,
 then mounted. If the mount fails the disk exists and is detached, so **attach it** rather
