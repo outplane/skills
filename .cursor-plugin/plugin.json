@@ -1,0 +1,22 @@
+{
+  "name": "outplane",
+  "displayName": "Out Plane",
+  "version": "0.7.0",
+  "description": "Deploy and manage your apps on Out Plane from Cursor. Your agent can create apps, read logs and metrics, set environment variables and domains, and manage PostgreSQL databases, storage buckets and Hangars (cloud machines for coding agents).",
+  "author": {
+    "name": "Out Plane",
+    "email": "hello@outplane.com"
+  },
+  "homepage": "https://docs.outplane.com/cli/agents",
+  "repository": "https://github.com/outplane/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "outplane",
+    "deployment",
+    "paas",
+    "cli",
+    "postgres",
+    "devops"
+  ],
+  "logo": ".claude-plugin/icon.png"
+}
