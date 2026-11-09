@@ -18,9 +18,30 @@
   "keywords": [
     "outplane",
     "deployment",
+    "deploy",
+    "hosting",
     "paas",
     "cli",
+    "devops",
+    "docker",
     "postgres",
-    "devops"
+    "postgresql",
+    "database",
+    "logs",
+    "metrics",
+    "environment-variables",
+    "custom-domains",
+    "volumes",
+    "s3",
+    "object-storage",
+    "buckets",
+    "hangar",
+    "hangars",
+    "vm",
+    "vms",
+    "cloud-machines",
+    "coding-agents",
+    "ai-agents",
+    "dev-environments"
   ]
 }
