@@ -11,10 +11,9 @@ description: >
   somewhere for an app to keep uploaded files, or a Hangar, even if they do not say "Out
   Plane" explicitly. Do NOT use for deployments to other hosting platforms, or for
   buckets on another storage provider.
-allowed-tools: Bash(outplane:*), Bash(command:*), Bash(which:*)
 metadata:
   author: Out Plane
-  version: "0.7.0"
+  version: "0.7.1"
   category: deployment
 ---
 

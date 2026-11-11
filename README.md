@@ -119,23 +119,18 @@ CLI changes and stays wrong until somebody notices. The skill sends the agent to
 binary actually runs. Only the exit-code contract is written out, because it is
 append-only by design and an agent branching on it should not need a tool call.
 
-```bash
-node scripts/validate.mjs          # check the rules a skill has to follow
-```
-
 ## Contributing
 
 Read the skill before changing it. A reference exists for the recipes: which commands
 compose into a task, in what order, and what to check between the steps. Flag lists,
 allowed values and limits belong in `outplane schema` and in the documentation, not here.
 
-Two rules that are not negotiable:
+One rule that is not negotiable:
 
 1. **Bump `version` in `.claude-plugin/plugin.json` in any change to skill content.**
    Claude Code compares that version to decide whether an installed copy is stale.
    Without a bump, nobody receives the change. Keep `metadata.version` in `SKILL.md` in
-   step with it; `scripts/validate.mjs` checks that they agree.
-2. **`node scripts/validate.mjs` must pass.** It runs in CI.
+   step with it.
 
 ## License
 
