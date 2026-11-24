@@ -83,13 +83,36 @@ Three traps:
 A profile cannot be deleted while anything still uses it, so `ip-profile unassign` runs
 first; `ip-profile get` lists what is still attached.
 
+## Restricting who can connect to a database
+
+The same profiles restrict a managed PostgreSQL database. Pass `--db` instead of `--app`:
+
+```bash
+outplane ip-profile assign office --db orders
+outplane ip-profile unassign office --db orders
+```
+
+The rule is the one for applications: the networks of every attached profile add up, and
+a database with no profile, or only empty ones, accepts connections from anywhere.
+
+- **Out Plane apps can always connect.** Applications on the platform reach a restricted
+  database without being in a profile. Do not add their addresses.
+- **Everything else needs a rule.** The user's own machine, a CI runner, or any other
+  host outside the platform is refused unless its address is in an attached profile.
+  Before restricting, ask where the user connects from and make sure that network is in
+  the profile, or `psql` and migrations from their machine stop working.
+- **It applies to new connections at once.** Assigning, unassigning, or changing the
+  rules of an attached profile with `ip-profile set` needs no restart. If the change
+  cannot be applied, it is refused and nothing changes.
+
 ## When an application is unreachable
 
 Work down this list, cheapest first:
 
 1. `outplane port list --json` — an empty list, or no public port, reaches nothing.
 2. `outplane ip-profile list --json` — if the team uses profiles, check whether one is
-   attached and whether the caller's address is in it.
+   attached and whether the caller's address is in it. A database the application uses
+   is not the cause: applications can always connect to a restricted database.
 3. `outplane domain list --app <app> --json` — a route with a null application points
    nowhere; a closed port leaves exactly that behind.
 4. `outplane app get --json --fields status,url` — a paused application answers nothing.

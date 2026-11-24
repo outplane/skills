@@ -13,7 +13,7 @@ description: >
   buckets on another storage provider.
 metadata:
   author: Out Plane
-  version: "0.7.1"
+  version: "0.8.0"
   category: deployment
 ---
 
@@ -65,7 +65,8 @@ Three rules follow, and they matter more than anything else in this file:
 - **Bucket** is S3 compatible storage for files, owned by the team and reached by any S3
   client holding one of its **access keys**. A key opens that one bucket only.
 - **Managed database** is a PostgreSQL instance holding roles and databases.
-- **IP access profile** is a list of networks allowed to reach an application.
+- **IP access profile** is a list of networks allowed to reach an application, or to
+  connect to a managed database.
 - **Hangar** is a cloud machine for coding agents that the team shares: the agents
   chosen at creation, a disk that keeps its files, and one terminal session that keeps
   running. It is not an application and no `app` command reaches one, but its name
@@ -221,7 +222,7 @@ Load one reference. Two at most.
 | --- | --- | --- |
 | Ship code, watch a build, change how it builds | `references/deploy.md` | `deploy`, `build` |
 | Set variables or open a port | `references/configure.md` | `env`, `env group`, `port` |
-| Give it an address, or restrict who reaches it | `references/network.md` | `domain`, `ip-profile` |
+| Give it an address, or restrict who reaches it or its database | `references/network.md` | `domain`, `ip-profile` |
 | Use a database or a persistent disk | `references/data.md` | `db`, `volume` |
 | Keep files in a bucket, give an application its keys, or serve files by link | `references/buckets.md` | `bucket`, `bucket key` |
 | Find out what it is doing, or why it broke | `references/operate.md` | `logs`, `requests`, `metrics`, `app shell`, `app instances`, `app scale`, `app pause`, `app resume` |

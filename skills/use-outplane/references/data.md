@@ -53,6 +53,19 @@ nowhere else.
 While the instance holds exactly one role and one database, neither has to be named.
 With a choice, the command refuses and lists them rather than picking one.
 
+## Restricting who can connect
+
+A database accepts connections from anywhere until an IP access profile with rules is
+attached to it:
+
+```bash
+outplane ip-profile assign office --db orders
+```
+
+Out Plane apps can always connect to a restricted database. The user's own machine and
+CI cannot unless their address is in an attached profile, so check that before
+restricting. Details and traps are in `network.md`.
+
 ## Roles and databases inside an instance
 
 Two levels share the word *database*: the managed instance, and the databases inside it.
